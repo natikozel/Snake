@@ -85,7 +85,7 @@ class Snake {
 
     createFood = () => {
         const randomFood = (min, max) => Math.round((Math.random() * (max - min) + min) / this.unitSize) * this.unitSize
-        this.foodX = randomFood(0, this.gameWidth)
+        this.foodX = randomFood(0, this.gameWidth - this.unitSize)
         this.foodY = randomFood(0, this.gameWidth - this.unitSize)
     };
 
@@ -95,36 +95,41 @@ class Snake {
     }
 
     moveSnake() {
-        // this.snake.shift()
+
+        const updateScore = () => {
+            if (this.snake[0].x === this.foodX && this.snake[0].y === this.foodY) {
+                this.createFood();
+                this.score++;
+                document.querySelector("#scoreText").textContent = this.score;
+                return true;
+            }
+            return false;
+        }
+
         switch (this.direction) {
             case 'ArrowLeft':
 
                 this.snake.unshift({x: this.snake[0].x + -this.xVelocity, y: this.snake[0].y})
-                this.snake.pop()
-
+                if (!updateScore())
+                    this.snake.pop()
                 break;
             case 'ArrowRight':
 
                 this.snake.unshift({x: this.snake[0].x + this.xVelocity, y: this.snake[0].y})
-                this.snake.pop()
-
+                if (!updateScore())
+                    this.snake.pop()
                 break;
             case 'ArrowDown':
 
                 this.snake.unshift({x: this.snake[0].x, y: this.snake[0].y + this.yVelocity})
-                this.snake.pop()
-
+                if (!updateScore())
+                    this.snake.pop()
                 break;
             case 'ArrowUp':
                 this.snake.unshift({x: this.snake[0].x, y: this.snake[0].y + -this.yVelocity})
-                this.snake.pop()
-
+                if (!updateScore())
+                    this.snake.pop()
                 break;
-        }
-        if (this.snake[0].x === this.foodX && this.snake[0].y === this.foodY) {
-            this.createFood();
-            this.score ++;
-            document.querySelector("#scoreText").textContent = this.score;
         }
 
         // this.snake.push({x: this.snake[4].x + this.xVelocity, y: this.snake[4].y + this.yVelocity})
@@ -141,8 +146,17 @@ class Snake {
 
     checkGameOver() {
         if (this.snake[0].x > this.gameWidth - this.unitSize || this.snake[0].y > this.gameHeight - this.unitSize ||
-            this.snake[0].x < 0 || this.snake[0].y < 0)
+            this.snake[0].x < 0 || this.snake[0].y < 0) {
             this.running = false;
+            return
+        }
+        this.snake.forEach((snakePart, i) => {
+            if (i > 0) {
+                if (this.snake[0].x === snakePart.x && this.snake[0].y === snakePart.y) {
+                    this.running = false;
+                }
+            }
+        })
     };
 
     displayGameOver() {
